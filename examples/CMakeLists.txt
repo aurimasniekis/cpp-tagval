@@ -1,0 +1,20 @@
+function(tagval_add_example target src)
+    add_executable(${target} ${src})
+    target_link_libraries(${target} PRIVATE tagval::tagval)
+    tagval_set_warnings(${target} PRIVATE)
+    tagval_enable_sanitizers(${target})
+endfunction()
+
+tagval_add_example(tagval_closed_ended    closed_ended.cpp)
+tagval_add_example(tagval_open_ended      open_ended.cpp)
+tagval_add_example(tagval_extern_entries  extern_entries.cpp)
+tagval_add_example(tagval_metadata        metadata.cpp)
+tagval_add_example(tagval_formatting      formatting.cpp)
+
+if(TAGVAL_WITH_NLOHMANN_JSON AND TARGET nlohmann_json::nlohmann_json)
+    tagval_add_example(tagval_json_integration json_integration.cpp)
+endif()
+
+if(TAGVAL_WITH_PARCEL AND TARGET parcel::parcel)
+    tagval_add_example(tagval_parcel_integration parcel_integration.cpp)
+endif()

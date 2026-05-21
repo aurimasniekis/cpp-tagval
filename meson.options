@@ -1,0 +1,4 @@
+option('tests',    type: 'boolean', value: false, description: 'Build tagval tests')
+option('examples', type: 'boolean', value: false, description: 'Build tagval examples')
+option('json',     type: 'boolean', value: true,  description: 'Enable optional nlohmann/json integration')
+option('parcel',   type: 'boolean', value: true,  description: 'Enable optional cpp-parcel integration')

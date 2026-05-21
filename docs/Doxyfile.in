@@ -1,0 +1,46 @@
+# Doxyfile template for tagval — variables in @VAR@ form are substituted by
+# CMake's configure_file().
+
+PROJECT_NAME           = "@PROJECT_NAME@"
+PROJECT_NUMBER         = "@PROJECT_VERSION@"
+PROJECT_BRIEF          = "@PROJECT_DESCRIPTION@"
+
+OUTPUT_DIRECTORY       = "@TAGVAL_DOXYGEN_OUTPUT_DIR@"
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_XML           = NO
+
+INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/include" \
+                         "@CMAKE_CURRENT_SOURCE_DIR@/README.md"
+USE_MDFILE_AS_MAINPAGE = "@CMAKE_CURRENT_SOURCE_DIR@/README.md"
+RECURSIVE              = YES
+FILE_PATTERNS          = *.hpp *.h *.md
+
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_LOCAL_CLASSES  = NO
+HIDE_UNDOC_MEMBERS     = NO
+INLINE_SIMPLE_STRUCTS  = YES
+SHOW_FILES             = YES
+SORT_MEMBER_DOCS       = NO
+
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = YES
+MARKDOWN_SUPPORT       = YES
+BUILTIN_STL_SUPPORT    = YES
+
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = TAGVAL_WITH_NLOHMANN_JSON=1 \
+                         TAGVAL_WITH_PARCEL=1
+
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_NO_PARAMDOC       = NO
+
+HTML_OUTPUT            = html
+HTML_DYNAMIC_SECTIONS  = YES
+DISABLE_INDEX          = NO
+GENERATE_TREEVIEW      = YES
