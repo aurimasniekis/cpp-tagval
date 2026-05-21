@@ -132,7 +132,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
 FetchContent_Declare(tagval
     URL      https://github.com/aurimasniekis/cpp-tagval/archive/refs/tags/v0.1.0.tar.gz
-    URL_HASH SHA256=0000000000000000000000000000000000000000000000000000000000000000
+    URL_HASH SHA256=b13757b4ab675b54e204aed243cee101fda5f13a67da37ce17f0165145622f50
 )
 FetchContent_MakeAvailable(tagval)
 
