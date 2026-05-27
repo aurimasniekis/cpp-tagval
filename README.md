@@ -1,6 +1,7 @@
 # tagval
 
 ![CI](https://github.com/aurimasniekis/cpp-tagval/actions/workflows/ci.yml/badge.svg)
+[![Docs](https://github.com/aurimasniekis/cpp-tagval/actions/workflows/docs.yml/badge.svg)](https://aurimasniekis.github.io/cpp-tagval/)
 
 A header-only C++23 library for **tagged values** — strongly-typed open and
 closed enumerations whose entries are first-class compile-time types with a
