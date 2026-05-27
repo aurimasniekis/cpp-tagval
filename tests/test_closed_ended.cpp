@@ -24,7 +24,8 @@ TEST(ClosedEnded, ValueAccessorsExposeMetadata) {
     // Empty Label falls back to code.
     EXPECT_EQ(Status::active().label(), "active");
     EXPECT_EQ(Status::inactive().label(), "Inactive");
-    EXPECT_EQ(Status::inactive().icon(), "mdi:off");
+    ASSERT_TRUE(Status::inactive().icon());
+    EXPECT_EQ(Status::inactive().icon()->value(), "mdi:off");
     EXPECT_EQ(Status::pending().label(), "Pending");
 }
 

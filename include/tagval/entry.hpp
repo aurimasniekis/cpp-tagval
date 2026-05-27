@@ -10,8 +10,11 @@
 /// record inside that storage. Pointer equality on that address is value
 /// equality.
 
-#include <tagval/fixed_string.hpp>
+#include <commons/color.hpp>
+#include <commons/fixed_string.hpp>
+#include <commons/icon.hpp>
 
+#include <optional>
 #include <string_view>
 
 namespace tagval {
@@ -21,12 +24,12 @@ namespace tagval {
 ///     struct Active : tagval::Entry<Status, "active", "Active",
 ///                                   "mdi:on", "#00ff00"> {};
 ///
-/// Trailing metadata fields default to empty fixed_strings.
+/// Trailing metadata fields default to empty comms::FixedString values.
 template <typename Owner,
-          fixed_string Code,
-          fixed_string Label = "",
-          fixed_string Icon = "",
-          fixed_string Color = "">
+          comms::FixedString Code,
+          comms::FixedString Label = "",
+          comms::FixedString Icon = "",
+          comms::FixedString Color = "">
 struct Entry {
     static_assert(Code.size() > 0, "tagval::Entry: code must not be empty");
 
@@ -43,8 +46,8 @@ struct Entry {
 struct TagValMetadata {
     std::string_view code;
     std::string_view label;
-    std::string_view icon;
-    std::string_view color;
+    std::optional<comms::Icon> icon;
+    std::optional<comms::Color> color;
 
     [[nodiscard]] friend constexpr bool operator==(const TagValMetadata&,
                                                    const TagValMetadata&) noexcept = default;
@@ -66,8 +69,8 @@ template <typename E>
     return TagValMetadata{
         .code = std::string_view{E::code},
         .label = label_or_code<E>(),
-        .icon = std::string_view{E::icon},
-        .color = std::string_view{E::color},
+        .icon = comms::Icon::parse(std::string_view{E::icon}),
+        .color = comms::Color::parse(std::string_view{E::color}),
     };
 }
 

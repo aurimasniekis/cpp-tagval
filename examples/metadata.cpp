@@ -3,7 +3,13 @@
 
 #include <tagval/tagval.hpp>
 
+#include <commons/literals.hpp>
+
 #include <iostream>
+#include <string>
+#include <string_view>
+
+using namespace comms::literals;
 
 class Severity : public tagval::ClosedEnded<"severity", Severity> {
 public:
@@ -14,25 +20,28 @@ public:
         return tagval::TagValDescriptor{
             .id = "severity",
             .name = "Alert Severity",
-            .icon = "alert",
-            .color = "#aa0000",
+            .icon = "mdi:alert"_icon,
+            .color = "#aa0000"_color,
         };
     }
 
-    TAGVAL_ENTRY(Severity, Info, info, "Info", "info", "#3366cc")
-    TAGVAL_ENTRY(Severity, Warn, warn, "Warn", "warning", "#cc9900")
-    TAGVAL_ENTRY(Severity, Error, error, "Error", "error", "#cc0000")
+    TAGVAL_ENTRY(Severity, Info, info, "Info", "mdi:information", "#3366cc")
+    TAGVAL_ENTRY(Severity, Warn, warn, "Warn", "mdi:alert", "#cc9900")
+    TAGVAL_ENTRY(Severity, Error, error, "Error", "mdi:alert-circle", "#cc0000")
 
     using values_t = tagval::Values<Info, Warn, Error>;
 };
 
 int main() {
     constexpr auto k = Severity::descriptor();
-    std::cout << "Kind: " << k.id << " — " << k.name << " (icon=" << k.icon << ")\n";
+    std::cout << "Kind: " << k.id << " — " << k.name
+              << " (icon=" << (k.icon ? k.icon->value() : std::string_view{"-"}) << ")\n";
 
     std::cout << "Values:\n";
     for (const auto& [code, label, icon, color] : Severity::all_values()) {
-        std::cout << "  [" << icon << "] " << code << " (" << label << ") color=" << color << '\n';
+        std::cout << "  [" << (icon ? icon->value() : std::string_view{"-"}) << "] " << code << " ("
+                  << label << ") color=" << (color ? color->to_hex_string() : std::string{"-"})
+                  << '\n';
     }
     return 0;
 }

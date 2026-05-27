@@ -21,6 +21,7 @@ compile_commands.json
 subprojects/packagecache/
 subprojects/*/
 !subprojects/packagefiles/
+subprojects/.wraplock
 
 # IDE / editor
 .vs/

@@ -14,14 +14,26 @@ if(TAGVAL_WITH_NLOHMANN_JSON)
     FetchContent_MakeAvailable(nlohmann_json)
 endif()
 
+# commons is a core (mandatory) dependency. Declare it before parcel so that
+# FetchContent dedups against parcel's identical v0.1.3 pin, and so it is
+# available even when TAGVAL_WITH_PARCEL is OFF.
+FetchContent_Declare(
+    commons
+    URL      https://github.com/aurimasniekis/cpp-commons/archive/refs/tags/v0.1.3.tar.gz
+    URL_HASH SHA256=2f5615ac96a1a1dddda5424ed75c0d1a0142f115f215502562f479ef138fc30d
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    FIND_PACKAGE_ARGS 0.1
+)
+FetchContent_MakeAvailable(commons)
+
 if(TAGVAL_WITH_PARCEL)
     set(PARCEL_BUILD_TESTS    OFF CACHE INTERNAL "")
     set(PARCEL_BUILD_EXAMPLES OFF CACHE INTERNAL "")
     FetchContent_Declare(
         parcel
         GIT_REPOSITORY https://github.com/aurimasniekis/cpp-parcel.git
-        GIT_TAG        v0.1.0
-        FIND_PACKAGE_ARGS 0.1.0
+        GIT_TAG        v0.2.0
+        FIND_PACKAGE_ARGS 0.2
     )
     FetchContent_MakeAvailable(parcel)
 endif()

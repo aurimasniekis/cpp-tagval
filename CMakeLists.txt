@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 project(tagval
-    VERSION     0.1.0
+    VERSION     0.2.0
     DESCRIPTION "Modern C++23 header-only library of tagged values (open/closed enumerations with metadata)"
     LANGUAGES   CXX
 )
@@ -53,6 +53,9 @@ target_include_directories(tagval
 )
 
 target_compile_features(tagval INTERFACE cxx_std_23)
+
+# commons is a mandatory core dependency (provides FixedString, Color, Icon).
+target_link_libraries(tagval INTERFACE commons::commons)
 
 if(TAGVAL_WITH_NLOHMANN_JSON AND TARGET nlohmann_json::nlohmann_json)
     target_link_libraries(tagval INTERFACE nlohmann_json::nlohmann_json)
@@ -112,9 +115,9 @@ if(TAGVAL_BUILD_DOCS)
     )
 endif()
 
-if(TAGVAL_INSTALL AND (DEFINED nlohmann_json_SOURCE_DIR OR DEFINED parcel_SOURCE_DIR))
+if(TAGVAL_INSTALL AND (DEFINED nlohmann_json_SOURCE_DIR OR DEFINED parcel_SOURCE_DIR OR DEFINED commons_SOURCE_DIR))
     message(STATUS
-        "tagval: TAGVAL_INSTALL disabled — a fetched dependency (nlohmann_json or parcel) "
+        "tagval: TAGVAL_INSTALL disabled — a fetched dependency (nlohmann_json, parcel, or commons) "
         "cannot be re-exported. Install it via system package or find_package, or disable "
         "TAGVAL_WITH_NLOHMANN_JSON / TAGVAL_WITH_PARCEL, to re-enable install rules."
     )

@@ -108,12 +108,20 @@ class types) are expected to work but are not gated by CI. MSVC in
 particular is not exercised — see *Limitations* for the static-archive
 caveat that affects it.
 
-The library has no required runtime dependencies. Optional integrations:
+The library has one required dependency:
+
+- [`cpp-commons`](https://github.com/aurimasniekis/cpp-commons) ≥ 0.1.3 —
+  provides `comms::FixedString` (the NTTP string type used for kind ids and
+  entry codes) and the `comms::Color` / `comms::Icon` value types used for
+  entry and descriptor metadata. Pulled in automatically by the CMake and
+  Meson builds (target `commons::commons`).
+
+Optional integrations:
 
 - [`nlohmann/json`](https://github.com/nlohmann/json) ≥ 3.12 — JSON
   adapter.
-- [`cpp-parcel`](https://github.com/aurimasniekis/cpp-parcel) — `TagValCell`
-  envelope.
+- [`cpp-parcel`](https://github.com/aurimasniekis/cpp-parcel) ≥ 0.2 —
+  `TagValCell` envelope. (Also links `commons::commons` transitively.)
 
 Both adapters are auto-detected via `__has_include`, so simply having the
 headers visible to the preprocessor is enough.
@@ -131,8 +139,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
 FetchContent_Declare(tagval
-    URL      https://github.com/aurimasniekis/cpp-tagval/archive/refs/tags/v0.1.0.tar.gz
-    URL_HASH SHA256=b13757b4ab675b54e204aed243cee101fda5f13a67da37ce17f0165145622f50
+    URL      https://github.com/aurimasniekis/cpp-tagval/archive/refs/tags/v0.2.0.tar.gz
+    URL_HASH SHA256=<fill-at-release>
 )
 FetchContent_MakeAvailable(tagval)
 
@@ -143,19 +151,19 @@ target_link_libraries(my_app PRIVATE tagval::tagval)
 ### CMake — find_package (after `cmake --install`)
 
 ```cmake
-find_package(tagval 0.1 REQUIRED)
+find_package(tagval 0.2 REQUIRED)
 target_link_libraries(my_app PRIVATE tagval::tagval)
 ```
 
-Install rules are skipped automatically if `nlohmann_json` or `parcel` came
-from `FetchContent` — those can't be re-exported. Disable
-`TAGVAL_WITH_NLOHMANN_JSON` / `TAGVAL_WITH_PARCEL` or supply them via
-`find_package` to re-enable installation.
+Install rules are skipped automatically if `nlohmann_json`, `parcel`, or
+`commons` came from `FetchContent` — those can't be re-exported. Supply them
+via `find_package` (and disable `TAGVAL_WITH_NLOHMANN_JSON` /
+`TAGVAL_WITH_PARCEL` if unused) to re-enable installation.
 
 ### Meson
 
 ```meson
-tagval_dep = dependency('tagval', version: '>=0.1.0',
+tagval_dep = dependency('tagval', version: '>=0.2.0',
     fallback: ['tagval', 'tagval_dep'])
 ```
 
@@ -208,7 +216,6 @@ If you'd rather keep a translation unit lean, include only what you use:
 | `tagval::OpenEndedRegistry<Owner>` (extern entries for one kind) | `<tagval/openended_registry.hpp>` |
 | `tagval::KindRegistry` (program-wide kind index)                 | `<tagval/kind_registry.hpp>`      |
 | `tagval::TagValDescriptor`                                       | `<tagval/descriptor.hpp>`         |
-| `tagval::fixed_string`                                           | `<tagval/fixed_string.hpp>`       |
 | Exception types                                                  | `<tagval/error.hpp>`              |
 | `std::format` integration                                        | `<tagval/format.hpp>`             |
 | `std::ostream` integration                                       | `<tagval/ostream.hpp>`            |
@@ -367,8 +374,9 @@ Notes worth knowing:
   but which is missing from `values_t` is a `static_assert` failure, not
   a runtime miss.
 - The empty `Inactive` icon trick: `TAGVAL_ENTRY(..., "Inactive")` skips
-  the icon/color fields. Trailing fields default to empty strings, so
-  `.icon()` and `.color()` return `""`.
+  the icon/color fields. Trailing fields default to empty strings, which
+  parse to "unset", so `.icon()` returns an empty `std::optional<comms::Icon>`
+  and `.color()` an empty `std::optional<comms::Color>`.
 
 ## Open-ended kinds
 
@@ -478,7 +486,13 @@ other fields empty.
 ```cpp
 #include <tagval/tagval.hpp>
 
+#include <commons/literals.hpp>
+
 #include <iostream>
+#include <string>
+#include <string_view>
+
+using namespace comms::literals;
 
 class Severity : public tagval::ClosedEnded<"severity", Severity> {
 public:
@@ -489,31 +503,38 @@ public:
         return tagval::TagValDescriptor{
             .id    = "severity",
             .name  = "Alert Severity",
-            .icon  = "alert",
-            .color = "#aa0000",
+            .icon  = "mdi:alert"_icon,
+            .color = "#aa0000"_color,
         };
     }
 
-    TAGVAL_ENTRY(Severity, Info,  info,  "Info",  "info",    "#3366cc")
-    TAGVAL_ENTRY(Severity, Warn,  warn,  "Warn",  "warning", "#cc9900")
-    TAGVAL_ENTRY(Severity, Error, error, "Error", "error",   "#cc0000")
+    TAGVAL_ENTRY(Severity, Info,  info,  "Info",  "mdi:information",  "#3366cc")
+    TAGVAL_ENTRY(Severity, Warn,  warn,  "Warn",  "mdi:alert",        "#cc9900")
+    TAGVAL_ENTRY(Severity, Error, error, "Error", "mdi:alert-circle", "#cc0000")
 
     using values_t = tagval::Values<Info, Warn, Error>;
 };
 
 int main() {
     constexpr auto k = Severity::descriptor();
-    std::cout << "Kind: " << k.id << " — " << k.name << " (icon=" << k.icon << ")\n";
+    std::cout << "Kind: " << k.id << " — " << k.name
+              << " (icon=" << (k.icon ? k.icon->value() : std::string_view{"-"}) << ")\n";
 
     for (const auto& [code, label, icon, color] : Severity::all_values()) {
-        std::cout << "  [" << icon << "] " << code << " (" << label << ") " << color << '\n';
+        std::cout << "  [" << (icon ? icon->value() : std::string_view{"-"}) << "] " << code
+                  << " (" << label << ") "
+                  << (color ? color->to_hex_string() : std::string{"-"}) << '\n';
     }
 }
 ```
 
-`TagValDescriptor` stores `std::string_view`s, so the storage you point
-at must outlive the descriptor. Returning string literals (as here) is
-always safe.
+`make_descriptor()` returns by value at compile time: `id` and `name` are
+`std::string_view`s (so the storage you point at — string literals here —
+must outlive the descriptor), while `icon` and `color` are
+`std::optional<comms::Icon>` / `std::optional<comms::Color>`. The `_icon`
+and `_color` literals validate at compile time; an empty or unparseable
+value becomes an empty optional ("unset"). Per-entry icon/color are read
+back the same way via `.icon()` / `.color()` on a handle.
 
 ## Parsing, formatting, comparing
 
@@ -739,7 +760,7 @@ under `namespace tagval`:
 | `TagValDescriptor`                          | Runtime view of kind-level metadata              | Provided by `descriptor()`                                          |
 | `TagValError`, `UnknownCodeError`           | Exception types                                  | Derive from `std::runtime_error`                                    |
 | `ParseError`                                | `try_of` failure record                          | Has `code`, `kind_id`, `message()`                                  |
-| `fixed_string<N>`                           | NTTP-friendly string class                       | Used for kind id and entry code                                     |
+| `comms::FixedString<N>`                     | NTTP-friendly string class (from cpp-commons)    | Used for kind id and entry code                                     |
 | `metadata_v<E>`                             | Pinned `TagValMetadata` constant for entry `E`   | ODR-merged across TUs                                               |
 | `TagValCell<TagT>` (optional)               | cpp-parcel envelope                              | `kind_id = "tagval"`                                                |
 | `TAGVAL_ENTRY[_AS]`                         | In-class entry macro                             | Derived or explicit code                                            |

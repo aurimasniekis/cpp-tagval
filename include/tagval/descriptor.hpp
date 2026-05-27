@@ -3,6 +3,10 @@
 /// @file
 /// @brief Public kind-level metadata struct.
 
+#include <commons/color.hpp>
+#include <commons/icon.hpp>
+
+#include <optional>
 #include <string_view>
 
 namespace tagval {
@@ -14,10 +18,10 @@ namespace tagval {
 /// literals, this is automatic.
 struct TagValDescriptor {
     // NOLINTBEGIN(readability-redundant-member-init)
-    std::string_view id;       ///< Stable identifier (e.g. "device_kind"). Required.
-    std::string_view name{};   ///< Human-readable label (e.g. "Device Kind").
-    std::string_view icon{};   ///< Optional UI icon.
-    std::string_view color{};  ///< Optional UI accent.
+    std::string_view id;                  ///< Stable identifier (e.g. "device_kind"). Required.
+    std::string_view name{};              ///< Human-readable label (e.g. "Device Kind").
+    std::optional<comms::Icon> icon{};    ///< Optional UI icon.
+    std::optional<comms::Color> color{};  ///< Optional UI accent.
     // NOLINTEND(readability-redundant-member-init)
 
     [[nodiscard]] friend constexpr bool operator==(const TagValDescriptor&,

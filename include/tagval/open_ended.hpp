@@ -23,9 +23,10 @@
 #include <tagval/base.hpp>
 #include <tagval/entry.hpp>
 #include <tagval/error.hpp>
-#include <tagval/fixed_string.hpp>
 #include <tagval/openended_registry.hpp>
 #include <tagval/values.hpp>
+
+#include <commons/fixed_string.hpp>
 
 #include <concepts>
 #include <expected>
@@ -58,7 +59,7 @@ concept HasValuesT = requires { typename T::values_t; };
 ///     namespace vendor {
 ///     TAGVAL_EXTERN_ENTRY(::Kind, SmartWatch, smart_watch, "Smart Watch");
 ///     }
-template <fixed_string Id, typename Derived>
+template <comms::FixedString Id, typename Derived>
 class OpenEnded : public detail::HandleBase<Id, Derived> {
     using base_t = detail::HandleBase<Id, Derived>;
 

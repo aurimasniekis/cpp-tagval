@@ -1,5 +1,5 @@
 project('tagval', 'cpp',
-    version: '0.1.0',
+    version: '0.2.0',
     license: 'MIT',
     default_options: [
         'cpp_std=c++23',
@@ -26,6 +26,12 @@ tagval_inc = include_directories('include')
 
 tagval_deps = []
 tagval_pkgconfig_requires = []
+
+# commons is a mandatory core dependency (FixedString, Color, Icon).
+commons_dep = dependency('commons', version: '>=0.1.3',
+    fallback: ['commons', 'commons_dep'])
+tagval_deps += commons_dep
+tagval_pkgconfig_requires += 'commons'
 
 if get_option('json')
     json_dep = dependency('nlohmann_json', version: '>=3.12.0',

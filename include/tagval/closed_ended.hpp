@@ -12,9 +12,10 @@
 
 #include <tagval/base.hpp>
 #include <tagval/entry.hpp>
-#include <tagval/fixed_string.hpp>
 #include <tagval/open_ended.hpp>  // for detail::HasValuesT
 #include <tagval/values.hpp>
+
+#include <commons/fixed_string.hpp>
 
 #include <expected>
 #include <span>
@@ -32,7 +33,7 @@ namespace tagval {
 ///         TAGVAL_ENTRY(Status, Inactive, inactive, "Inactive");
 ///         using values_t = tagval::Values<Active, Inactive>;
 ///     };
-template <fixed_string Id, typename Derived>
+template <comms::FixedString Id, typename Derived>
 class ClosedEnded : public detail::HandleBase<Id, Derived> {
     using base_t = detail::HandleBase<Id, Derived>;
 

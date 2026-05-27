@@ -23,7 +23,8 @@ public:
 TEST(OpenEnded, ValuesTAccessorsExposeMetadata) {
     EXPECT_EQ(Kind::phone().code(), "phone");
     EXPECT_EQ(Kind::phone().label(), "Phone");
-    EXPECT_EQ(Kind::tablet().icon(), "mdi:tablet");
+    ASSERT_TRUE(Kind::tablet().icon());
+    EXPECT_EQ(Kind::tablet().icon()->value(), "mdi:tablet");
 }
 
 TEST(OpenEnded, AllValuesIncludesValuesTEntries) {

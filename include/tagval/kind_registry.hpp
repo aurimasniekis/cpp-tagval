@@ -22,8 +22,11 @@
 #include <tagval/closed_ended.hpp>
 #include <tagval/descriptor.hpp>
 #include <tagval/entry.hpp>
-#include <tagval/fixed_string.hpp>
 #include <tagval/open_ended.hpp>
+
+#include <commons/color.hpp>
+#include <commons/fixed_string.hpp>
+#include <commons/icon.hpp>
 
 #include <algorithm>
 #include <concepts>
@@ -54,8 +57,8 @@ enum class KindCategory { Closed, Open };
 struct KindEntryView {
     std::string_view code;
     std::string_view label;
-    std::string_view icon;
-    std::string_view color;
+    std::optional<comms::Icon> icon;
+    std::optional<comms::Color> color;
 
     [[nodiscard]] friend constexpr bool operator==(const KindEntryView&,
                                                    const KindEntryView&) noexcept = default;
@@ -68,12 +71,12 @@ namespace detail {
 /// template argument deduction from a derived class to a base-class
 /// pointer succeeds when the base is a class template specialization
 /// (see [temp.deduct.call]/4).
-template <fixed_string Id, typename T>
+template <comms::FixedString Id, typename T>
 constexpr KindCategory probe_kind(ClosedEnded<Id, T>*) noexcept {
     return KindCategory::Closed;
 }
 
-template <fixed_string Id, typename T>
+template <comms::FixedString Id, typename T>
 constexpr KindCategory probe_kind(OpenEnded<Id, T>*) noexcept {
     return KindCategory::Open;
 }

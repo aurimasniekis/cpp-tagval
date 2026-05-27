@@ -11,11 +11,15 @@
 #include <tagval/descriptor.hpp>
 #include <tagval/entry.hpp>
 #include <tagval/error.hpp>
-#include <tagval/fixed_string.hpp>
+
+#include <commons/color.hpp>
+#include <commons/fixed_string.hpp>
+#include <commons/icon.hpp>
 
 #include <compare>
 #include <concepts>
 #include <expected>
+#include <optional>
 #include <span>
 #include <string_view>
 
@@ -30,7 +34,7 @@ concept HasMakeDescriptor = requires {
     { T::make_descriptor() } -> std::same_as<TagValDescriptor>;
 };
 
-template <fixed_string Id, typename Derived>
+template <comms::FixedString Id, typename Derived>
 [[nodiscard]] constexpr TagValDescriptor compute_descriptor() noexcept {
     if constexpr (HasMakeDescriptor<Derived>) {
         return Derived::make_descriptor();
@@ -41,7 +45,7 @@ template <fixed_string Id, typename Derived>
 
 /// CRTP handle. Both ClosedEnded and OpenEnded derive from this; the concrete
 /// user type then derives from one of those.
-template <fixed_string Id, typename Derived>
+template <comms::FixedString Id, typename Derived>
 class HandleBase : public TagValBaseTag {
 public:
     /// Default-constructed handle: empty(), bool() == false. Useful as a
@@ -56,12 +60,12 @@ public:
         return meta_ != nullptr ? meta_->label : std::string_view{};
     }
 
-    [[nodiscard]] std::string_view icon() const noexcept {
-        return meta_ != nullptr ? meta_->icon : std::string_view{};
+    [[nodiscard]] std::optional<comms::Icon> icon() const noexcept {
+        return meta_ != nullptr ? meta_->icon : std::nullopt;
     }
 
-    [[nodiscard]] std::string_view color() const noexcept {
-        return meta_ != nullptr ? meta_->color : std::string_view{};
+    [[nodiscard]] std::optional<comms::Color> color() const noexcept {
+        return meta_ != nullptr ? meta_->color : std::nullopt;
     }
 
     [[nodiscard]] bool empty() const noexcept {

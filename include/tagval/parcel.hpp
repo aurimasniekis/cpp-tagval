@@ -55,13 +55,28 @@ public:
     static ::parcel::cell_t from_json(::parcel::json_t const& j, ::parcel::ParcelRegistry const&) {
         auto v = base_t::template cell_from_json<TagT>(j, kind_id);
         auto cell = std::make_shared<TagValCell>(v);
-        base_t::absorb_meta(j, cell);
+        base_t::absorb_display_info(j, cell);
         return cell;
     }
 
     static ::parcel::cell_type_descriptor_t descriptor() {
-        static const auto d = std::make_shared<::parcel::SimpleCellTypeDescriptor<TagValCell>>(
-            ::parcel::descriptor::MetaInfo{.name = "tagval::TagVal"});
+        // The parcel descriptor is per-type and process-wide static (shared
+        // across every value of TagT), so per-value icon/color cannot live
+        // here — those stay reachable via the handle (e.g. cell.value.icon()).
+        // Source the type-level name plus the kind-level (per-type) icon/color
+        // from TagT::descriptor().
+        static const auto d = [] {
+            constexpr auto kd = TagT::descriptor();  // per-type TagValDescriptor
+            ::parcel::DisplayInfo info{};
+            info.name = "tagval::TagVal";
+            if (kd.icon) {
+                info.icon = *kd.icon;
+            }
+            if (kd.color) {
+                info.color = *kd.color;
+            }
+            return std::make_shared<::parcel::SimpleCellTypeDescriptor<TagValCell>>(info);
+        }();
         return d;
     }
 };

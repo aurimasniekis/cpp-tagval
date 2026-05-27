@@ -8,7 +8,6 @@
 #include <tagval/descriptor.hpp>
 #include <tagval/entry.hpp>
 #include <tagval/error.hpp>
-#include <tagval/fixed_string.hpp>
 #include <tagval/format.hpp>
 #include <tagval/hash.hpp>
 #include <tagval/json_nlohmann.hpp>
